@@ -1,5 +1,5 @@
 Name:           Lazy-Pbkdf2
-Version:        1.0.0
+Version:        1.0.1
 Author:         Marcus Ofenhed <marcus@conditionraise.se>
 Maintainer:     Marcus Ofenhed <marcus@conditionraise.se>
 License:        MIT
@@ -12,7 +12,7 @@ Build-Type:     Simple
 cabal-version:  >= 1.10
 
 Library
-  Exposed-Modules:   Pbkdf2
+  Exposed-Modules:   Crypto.Pbkdf2
   Default-Language:  Haskell2010
   Build-Depends:     base>= 4 && <5,
                      SHA,
@@ -25,10 +25,11 @@ Test-Suite Known-answer
   Main-Is:           Pbkdf2-test.hs
   Default-Language:  Haskell2010
   Build-Depends:     base>= 4 && <5,
+                     SHA,
                      bytestring,
                      base16-bytestring,
                      binary
 
 Source-Repository head
   Type:       git
-  Location:   git://github.com/Ofenhed/Stenography.git
+  Location:   git://github.com/Ofenhed/LazyPbkdf2.git

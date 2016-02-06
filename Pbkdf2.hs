@@ -18,8 +18,8 @@ xorByteStrings x y
   | B.length x == B.length y = B.pack $ B.zipWith xor x y
   | otherwise = error "xor bytestrings are not of equal length"
 
-pbkdf2 :: (ByteString -> ByteString -> ByteString) -> ByteString -> ByteString -> Integer -> [ByteString]
-pbkdf2 hmac password salt count = pbkdf2' 1 True
+pbkdf2 :: (ByteString -> ByteString -> ByteString) -> ByteString -> ByteString -> Integer -> ByteString
+pbkdf2 hmac password salt count = B.concat $ pbkdf2' 1 True
   where
     hash' = hmac password
     pbkdf2' :: Word32 -> Bool -> [ByteString]

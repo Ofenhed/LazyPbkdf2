@@ -1,5 +1,5 @@
 import Data.ByteString.Lazy.Char8 as C8
-import Pbkdf2 (hmacSha512Pbkdf2)
+import Crypto.Pbkdf2 (hmacSha512Pbkdf2)
 import Data.Binary as B
 import Data.ByteString.Base16.Lazy as B16
 import Data.Int (Int64)

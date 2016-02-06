@@ -1,4 +1,4 @@
-module Pbkdf2 (pbkdf2, hmacSha512Pbkdf2) where
+module Crypto.Pbkdf2 (pbkdf2, hmacSha512Pbkdf2) where
 
 import Data.Digest.Pure.SHA (hmacSha512, bytestringDigest)
 import Data.Bits (shiftR)

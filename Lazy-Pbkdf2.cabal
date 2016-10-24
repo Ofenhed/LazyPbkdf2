@@ -1,5 +1,5 @@
 Name:           Lazy-Pbkdf2
-Version:        1.0.2
+Version:        2.0.0
 Author:         Marcus Ofenhed <marcus@conditionraise.se>
 Maintainer:     Marcus Ofenhed <marcus@conditionraise.se>
 License:        MIT
@@ -15,7 +15,6 @@ Library
   Exposed-Modules:   Crypto.Pbkdf2
   Default-Language:  Haskell2010
   Build-Depends:     base>= 4 && <5,
-                     SHA,
                      bytestring,
                      binary
                    
@@ -25,10 +24,11 @@ Test-Suite Known-answer
   Main-Is:           Pbkdf2-test.hs
   Default-Language:  Haskell2010
   Build-Depends:     base>= 4 && <5,
-                     SHA,
+                     cryptonite,
                      bytestring,
                      base16-bytestring,
-                     binary
+                     binary,
+                     memory
 
 Source-Repository head
   Type:       git

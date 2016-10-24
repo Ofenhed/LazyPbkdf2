@@ -1,6 +1,5 @@
-module Crypto.Pbkdf2 (pbkdf2, hmacSha512Pbkdf2) where
+module Crypto.Pbkdf2 (pbkdf2) where
 
-import Data.Digest.Pure.SHA (hmacSha512, bytestringDigest)
 import Data.Bits (shiftR)
 import Data.ByteString.Lazy as B
 import Data.Binary as Bin
@@ -39,12 +38,3 @@ pbkdf2 prf password salt iterations = B.concat $ pbkdf2' 1 True
         where
           current_hash = (hash' prev_hash)
           result = xorByteStrings current_hash prev_result
-
--- |Example of the pbkdf2 function using SHA512. See `pbkdf2` for usage.
-hmacSha512Pbkdf2 :: ByteString -- ^ @Password@
-                 -> ByteString -- ^ @Salt@
-                 -> Integer -- ^ @c@
-                 -> ByteString -- ^ @DK@
-hmacSha512Pbkdf2 = pbkdf2 hash
-  where
-    hash password salt = bytestringDigest $ hmacSha512 password salt

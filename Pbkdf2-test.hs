@@ -1,10 +1,14 @@
 import Data.ByteString.Lazy.Char8 as C8
-import Crypto.Pbkdf2 (hmacSha512Pbkdf2)
+import qualified Data.ByteString.Lazy as BS
+import Crypto.Pbkdf2 (pbkdf2)
 import Data.Binary as B
+import Data.ByteArray as BA
 import Data.ByteString.Base16.Lazy as B16
 import Data.Int (Int64)
 import System.IO (hSetBuffering, stdout, BufferMode (NoBuffering) )
 import System.Exit (exitFailure, exitSuccess)
+import Crypto.MAC.HMAC (initialize, update, finalize, Context(), hmacGetDigest)
+import Crypto.Hash.Algorithms (SHA512)
 
 -- Inofficial test suite fetched from http://stackoverflow.com/a/19898265
 test_vectors :: [(ByteString, ByteString, Integer, Int64, ByteString)]
@@ -84,6 +88,7 @@ prop_testHmacSha512Pbkdf test = toUpper generated == result
   where
     generated = B16.encode $ C8.take len $ hmacSha512Pbkdf2 pass salt iter
     (pass, salt, iter, len, result) = test
+    hmacSha512Pbkdf2 = pbkdf2 (\key d -> let h = (initialize $ C8.toStrict key :: Context SHA512) ; h' = update h $ C8.toStrict d in BS.pack $ BA.unpack $ hmacGetDigest $ finalize h')
 
 countIf :: (a -> Bool) -> [a] -> Int
 countIf cond = Prelude.length . Prelude.filter cond

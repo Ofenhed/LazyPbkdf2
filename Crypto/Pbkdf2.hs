@@ -1,11 +1,12 @@
 module Crypto.Pbkdf2 (pbkdf2, pbkdf2_iterative) where
 
 import Data.Bits (shiftR)
-import Data.ByteString.Lazy as B
-import Data.Binary as Bin
 import Data.Bits(xor)
 
-octetsBE :: Word32 -> [Word8]
+import qualified Data.ByteString.Lazy as B
+import qualified Data.Binary as Bin
+
+octetsBE :: Bin.Word32 -> [Bin.Word8]
 octetsBE w = 
     [ fromIntegral (w `shiftR` 24)
     , fromIntegral (w `shiftR` 16)
@@ -26,18 +27,18 @@ xorByteStrings x y
 -- changes the salt for the initial PBKDF2 value to include a salt iterated
 -- from earlier parts of the PBKDF2 stream. This can be verified by
 -- removing the i from (hash' $ B.concat [i, salt, B.pack $ octetsBE c]).
-pbkdf2_iterative :: (ByteString -> ByteString -> ByteString)
+pbkdf2_iterative :: (B.ByteString -> B.ByteString -> B.ByteString)
                      -- ^ @PRF@, the PRF function to be used for the
                      -- iterative PBKDF2. The first argument is secret, the
                      -- second argument is not.
-                 -> ByteString -- ^ @Password@, the secret to use in the PBKDF2 computations.
-                 -> ByteString -- ^ @Salt@, the not neccesarily secret data to use in the PBKDF2 computations.
+                 -> B.ByteString -- ^ @Password@, the secret to use in the PBKDF2 computations.
+                 -> B.ByteString -- ^ @Salt@, the not neccesarily secret data to use in the PBKDF2 computations.
                  -> Integer -- ^ @c@, number of iterations for the the PBKDF2 computations.
-                 -> ByteString -- ^ @DK@, the output data in the format of an unlimited lazy ByteString.
+                 -> B.ByteString -- ^ @DK@, the output data in the format of an unlimited lazy ByteString.
 pbkdf2_iterative prf password salt iterations = B.concat $ pbkdf2' (B.pack []) 1
   where
     hash' = prf password
-    pbkdf2' :: ByteString -> Word32 -> [ByteString]
+    pbkdf2' :: B.ByteString -> Bin.Word32 -> [B.ByteString]
     pbkdf2' i c = let prev = (pbkdf2'' (hash' $ B.concat [i, salt, B.pack $ octetsBE c])) in prev:(pbkdf2' (prf prev i) (c + 1))
     pbkdf2'' hash = pbkdf2''' hash hash 1
     pbkdf2''' prev_hash prev_result i
@@ -48,17 +49,17 @@ pbkdf2_iterative prf password salt iterations = B.concat $ pbkdf2' (B.pack []) 1
           current_hash = (hash' prev_hash)
           result = xorByteStrings current_hash prev_result
 
-pbkdf2 :: (ByteString -> ByteString -> ByteString)
+pbkdf2 :: (B.ByteString -> B.ByteString -> B.ByteString)
            -- ^ @PRF@, the PRF function to be used for PBKDF2. The first
            -- argument is secret, the second argument is not.
-       -> ByteString -- ^ @Password@, the secret to use in the PBKDF2 computations.
-       -> ByteString -- ^ @Salt@, the not neccesarily secret data to use in the PBKDF2 computations.
+       -> B.ByteString -- ^ @Password@, the secret to use in the PBKDF2 computations.
+       -> B.ByteString -- ^ @Salt@, the not neccesarily secret data to use in the PBKDF2 computations.
        -> Integer -- ^ @c@, number of iterations for the the PBKDF2 computations.
-       -> ByteString -- ^ @DK@, the output data in the format of an unlimited lazy ByteString.
+       -> B.ByteString -- ^ @DK@, the output data in the format of an unlimited lazy ByteString.
 pbkdf2 prf password salt iterations = B.concat $ pbkdf2' 1 True
   where
     hash' = prf password
-    pbkdf2' :: Word32 -> Bool -> [ByteString]
+    pbkdf2' :: Bin.Word32 -> Bool -> [B.ByteString]
     pbkdf2' 1 False = error "Hashing algorithm looped, stopping to maintain security of data" -- Paranoia, but that's useful when doing crypto
     pbkdf2' i _ = (pbkdf2'' (hash' $ B.concat [salt, B.pack $ octetsBE i])):(pbkdf2' (i + 1) False)
     pbkdf2'' hash = pbkdf2''' hash hash 1

@@ -20,13 +20,20 @@ xorByteStrings x y
 
 -- | This is a non standard variation of PBKDF2 which recursively uses the
 -- last generated value to improve the salt. In difference to pbkdf2 the
--- salt can not be precalculated (with a simple append of 4 bytes), but has
--- to be calculated for every single iteration. This also creates
--- a function where you cannot jump in the stream without calculating
--- everything before it. Compared to the standard this function only
--- changes the salt for the initial PBKDF2 value to include a salt iterated
--- from earlier parts of the PBKDF2 stream. This can be verified by
--- removing the i from (hash' $ B.concat [i, salt, B.pack $ octetsBE c]).
+-- salt can not be precalculated for every iteration (with a simple append
+-- of 4 bytes), but has to be calculated for every single iteration. This
+-- also creates a function where you cannot jump in the stream without
+-- calculating everything before it.  Compared to the standard this
+-- function only changes the salt for the initial PBKDF2 value of each
+-- iteration to include a salt iterated from earlier parts of the PBKDF2
+-- stream. This can be verified by removing the i from (hash' $ B.concat
+-- [i, salt, B.pack $ octetsBE c]).
+--
+-- The added salt for the first iteration will be "", and all following
+-- will be calculated as (PRF output input), where output is the output of
+-- the previous block and input is the added salt for the previous block.
+-- Notice that the output from the previous block is put in the password
+-- filed of the PRF.
 pbkdf2_iterative :: (B.ByteString -> B.ByteString -> B.ByteString)
                      -- ^ @PRF@, the PRF function to be used for the
                      -- iterative PBKDF2. The first argument is secret, the

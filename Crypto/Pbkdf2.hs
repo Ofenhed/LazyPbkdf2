@@ -57,8 +57,8 @@ pbkdf2_iterative :: (B.ByteString -> B.ByteString -> B.ByteString)
 pbkdf2_iterative prf password salt iterations = pbkdf2_internal (createBlocks (B.pack []) 1) prf password salt iterations
   where
     createBlocks :: B.ByteString -> Bin.Word32 -> (B.ByteString -> B.ByteString) -> [B.ByteString]
-    createBlocks i c hash = let prev = (hash $ B.concat [i, salt, B.pack $ octetsBE c])
-                                     in prev:(createBlocks (prf prev i) (c + 1) hash)
+    createBlocks blockSalt i hash = let prev = (hash $ B.concat [blockSalt, salt, B.pack $ octetsBE i])
+                                     in prev:(createBlocks (prf prev blockSalt) (i + 1) hash)
 
 pbkdf2 :: (B.ByteString -> B.ByteString -> B.ByteString)
            -- ^ @PRF@, the PRF function to be used for PBKDF2. The first

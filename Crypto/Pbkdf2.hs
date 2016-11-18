@@ -46,7 +46,8 @@ pbkdf2_iterative prf password salt iterations = B.concat $ pbkdf2' (B.pack []) 1
   where
     hash' = prf password
     pbkdf2' :: B.ByteString -> Bin.Word32 -> [B.ByteString]
-    pbkdf2' i c = let prev = (pbkdf2'' (hash' $ B.concat [i, salt, B.pack $ octetsBE c])) in prev:(pbkdf2' (prf prev i) (c + 1))
+    pbkdf2' i c = let prev = (pbkdf2'' (hash' $ B.concat [i, salt, B.pack $ octetsBE c]))
+                    in prev:(pbkdf2' (prf prev i) (c + 1))
     pbkdf2'' hash = pbkdf2''' hash hash 1
     pbkdf2''' prev_hash prev_result i
       | i == iterations = prev_result

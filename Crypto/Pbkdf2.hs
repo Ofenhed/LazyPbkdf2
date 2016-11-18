@@ -38,8 +38,8 @@ pbkdf2_internal createBlocks prf password salt iterations = B.concat $ createBlo
 -- calculating everything before it.  Compared to the standard this
 -- function only changes the salt for the initial PBKDF2 value of each
 -- iteration to include a salt iterated from earlier parts of the PBKDF2
--- stream. This can be verified by removing the i from (hash $ B.concat [i,
--- salt, B.pack $ octetsBE c]).
+-- stream. This can be verified by removing the i from (hash $ B.concat
+-- [blockSalt, salt, B.pack $ octetsBE c]).
 --
 -- The added salt for the first iteration will be "", and all following
 -- will be calculated as (PRF output input), where output is the output of

@@ -18,7 +18,7 @@ xorByteStrings x y
   | B.length x == B.length y = B.pack $ B.zipWith xor x y
   | otherwise = error "xor bytestrings are not of equal length"
 
-pbkdf2_internal createBlock prf password salt iterations = B.concat $ createBlock hash' first_iteration 1
+pbkdf2_internal createBlocks prf password salt iterations = B.concat $ createBlocks $ first_iteration . hash'
   where
     hash' = prf password
     first_iteration hash = additional_iterations hash hash 1
@@ -38,8 +38,8 @@ pbkdf2_internal createBlock prf password salt iterations = B.concat $ createBloc
 -- calculating everything before it.  Compared to the standard this
 -- function only changes the salt for the initial PBKDF2 value of each
 -- iteration to include a salt iterated from earlier parts of the PBKDF2
--- stream. This can be verified by removing the i from (hash' $ B.concat
--- [i, salt, B.pack $ octetsBE c]).
+-- stream. This can be verified by removing the i from (hash $ B.concat [i,
+-- salt, B.pack $ octetsBE c]).
 --
 -- The added salt for the first iteration will be "", and all following
 -- will be calculated as (PRF output input), where output is the output of
@@ -54,11 +54,11 @@ pbkdf2_iterative :: (B.ByteString -> B.ByteString -> B.ByteString)
                  -> B.ByteString -- ^ @Salt@, the not neccesarily secret data to use in the PBKDF2 computations.
                  -> Integer -- ^ @c@, number of iterations for the the PBKDF2 computations.
                  -> B.ByteString -- ^ @DK@, the output data in the format of an unlimited lazy ByteString.
-pbkdf2_iterative prf password salt iterations = pbkdf2_internal (createBlocks $ B.pack []) prf password salt iterations
+pbkdf2_iterative prf password salt iterations = pbkdf2_internal (createBlocks (B.pack []) 1) prf password salt iterations
   where
-    createBlocks :: B.ByteString -> (B.ByteString -> B.ByteString) -> (B.ByteString -> B.ByteString) -> Bin.Word32 -> [B.ByteString]
-    createBlocks i hash iterate c = let prev = (iterate (hash $ B.concat [i, salt, B.pack $ octetsBE c]))
-                                      in prev:(createBlocks (prf prev i) hash iterate $ c + 1)
+    createBlocks :: B.ByteString -> Bin.Word32 -> (B.ByteString -> B.ByteString) -> [B.ByteString]
+    createBlocks i c hash = let prev = (hash $ B.concat [i, salt, B.pack $ octetsBE c])
+                                     in prev:(createBlocks (prf prev i) (c + 1) hash)
 
 pbkdf2 :: (B.ByteString -> B.ByteString -> B.ByteString)
            -- ^ @PRF@, the PRF function to be used for PBKDF2. The first
@@ -67,8 +67,8 @@ pbkdf2 :: (B.ByteString -> B.ByteString -> B.ByteString)
        -> B.ByteString -- ^ @Salt@, the not neccesarily secret data to use in the PBKDF2 computations.
        -> Integer -- ^ @c@, number of iterations for the the PBKDF2 computations.
        -> B.ByteString -- ^ @DK@, the output data in the format of an unlimited lazy ByteString.
-pbkdf2 prf password salt iterations = pbkdf2_internal (createBlocks True) prf password salt iterations
+pbkdf2 prf password salt iterations = pbkdf2_internal (createBlocks True 1) prf password salt iterations
   where
-    createBlocks :: Bool -> (B.ByteString -> B.ByteString) -> (B.ByteString -> B.ByteString) -> Bin.Word32 -> [B.ByteString]
-    createBlocks False _ _ 1 = error "Hashing algorithm looped, stopping to maintain security of data" -- Paranoia, but that's useful when doing crypto
-    createBlocks _ hash iterate i = (iterate (hash $ B.concat [salt, B.pack $ octetsBE i])):(createBlocks False hash iterate $ i + 1)
+    createBlocks :: Bool -> Bin.Word32 -> (B.ByteString -> B.ByteString) -> [B.ByteString]
+    createBlocks False 1 _ = error "Hashing algorithm looped, stopping to maintain security of data" -- Paranoia, but that's useful when doing crypto
+    createBlocks _ i hash = (hash $ B.concat [salt, B.pack $ octetsBE i]):(createBlocks False (i + 1) hash)

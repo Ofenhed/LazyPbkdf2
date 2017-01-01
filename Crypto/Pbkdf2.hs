@@ -1,3 +1,4 @@
+{-# LANGUAGE Safe #-}
 module Crypto.Pbkdf2 (pbkdf2, pbkdf2_iterative) where
 
 import Data.Bits (shiftR)

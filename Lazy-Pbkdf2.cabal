@@ -1,5 +1,5 @@
 Name:           Lazy-Pbkdf2
-Version:        2.1.2
+Version:        3.0.0
 Author:         Marcus Ofenhed <marcus@conditionraise.se>
 Maintainer:     Marcus Ofenhed <marcus@conditionraise.se>
 License:        MIT
@@ -29,6 +29,18 @@ Test-Suite Known-answer
                      base16-bytestring,
                      binary,
                      memory
+
+Benchmark bench-hashers
+  Type:              exitcode-stdio-1.0
+  Main-Is:           bench/Pbkdf2.hs
+  Build-Depends:     base>= 4 && <5,
+                     bytestring,
+                     binary,
+                     cryptonite,
+                     criterion,
+                     byteable,
+                     memory
+
 
 Source-Repository head
   Type:       git

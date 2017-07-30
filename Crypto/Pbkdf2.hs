@@ -4,7 +4,8 @@ module Crypto.Pbkdf2 (pbkdf2, pbkdf2_iterative) where
 import Data.Bits (shiftR)
 import Data.Bits(xor)
 
-import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as LB
 import qualified Data.Binary as Bin
 
 octetsBE :: Bin.Word32 -> [Bin.Word8]
@@ -19,7 +20,7 @@ xorByteStrings x y
   | B.length x == B.length y = B.pack $ B.zipWith xor x y
   | otherwise = error "xor bytestrings are not of equal length"
 
-pbkdf2_internal createBlocks prf password salt iterations = B.concat $ createBlocks $ first_iteration . hash'
+pbkdf2_internal createBlocks prf password salt iterations = LB.concat $ map LB.fromStrict $ createBlocks $ first_iteration . hash'
   where
     hash' = prf password
     first_iteration hash = additional_iterations hash hash 1
@@ -52,7 +53,7 @@ pbkdf2_iterative :: (B.ByteString -> B.ByteString -> B.ByteString)
                  -> B.ByteString -- ^ @Password@, the secret to use in the PBKDF2 computations.
                  -> B.ByteString -- ^ @Salt@, the not neccesarily secret data to use in the PBKDF2 computations.
                  -> Integer -- ^ @c@, number of iterations for the the PBKDF2 computations.
-                 -> B.ByteString -- ^ @DK@, the output data in the format of an unlimited lazy ByteString.
+                 -> LB.ByteString -- ^ @DK@, the output data in the format of an unlimited lazy ByteString.
 pbkdf2_iterative prf password salt iterations = pbkdf2_internal (createBlocks (B.pack []) 1) prf password salt iterations
   where
     createBlocks :: B.ByteString -> Bin.Word32 -> (B.ByteString -> B.ByteString) -> [B.ByteString]
@@ -65,7 +66,7 @@ pbkdf2 :: (B.ByteString -> B.ByteString -> B.ByteString)
        -> B.ByteString -- ^ @Password@, the secret to use in the PBKDF2 computations.
        -> B.ByteString -- ^ @Salt@, the not neccesarily secret data to use in the PBKDF2 computations.
        -> Integer -- ^ @c@, number of iterations for the the PBKDF2 computations.
-       -> B.ByteString -- ^ @DK@, the output data in the format of an unlimited lazy ByteString.
+       -> LB.ByteString -- ^ @DK@, the output data in the format of an unlimited lazy ByteString.
 pbkdf2 prf password salt iterations = pbkdf2_internal (createBlocks True 1) prf password salt iterations
   where
     createBlocks :: Bool -> Bin.Word32 -> (B.ByteString -> B.ByteString) -> [B.ByteString]

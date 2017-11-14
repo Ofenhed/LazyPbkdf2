@@ -15,8 +15,7 @@ Library
   Exposed-Modules:   Crypto.Pbkdf2
   Default-Language:  Haskell2010
   Build-Depends:     base>= 4 && <5,
-                     bytestring,
-                     binary
+                     bytestring
                    
 
 Test-Suite Known-answer
@@ -27,7 +26,6 @@ Test-Suite Known-answer
                      cryptonite,
                      bytestring,
                      base16-bytestring,
-                     binary,
                      memory
 
 Benchmark bench-hashers
@@ -36,7 +34,6 @@ Benchmark bench-hashers
   Main-Is:           bench/Pbkdf2.hs
   Build-Depends:     base>= 4 && <5,
                      bytestring,
-                     binary,
                      cryptonite,
                      criterion,
                      byteable,

@@ -2,7 +2,6 @@ import Data.ByteString.Char8 as C8
 import Data.ByteString.Lazy.Char8 as LC8
 import qualified Data.ByteString as BS
 import Crypto.Pbkdf2 (pbkdf2)
-import Data.Binary as B
 import Data.ByteArray as BA
 import Data.ByteString.Base16.Lazy as B16
 import Data.Int (Int64)

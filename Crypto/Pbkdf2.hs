@@ -2,13 +2,13 @@
 module Crypto.Pbkdf2 (pbkdf2, pbkdf2_blocks, pbkdf2_iterative, pbkdf2_iterative_blocks) where
 
 import Data.Bits (shiftR)
-import Data.Bits(xor)
+import Data.Bits (xor)
+import Data.Word (Word8, Word32)
 
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as LB
-import qualified Data.Binary as Bin
 
-octetsBE :: Bin.Word32 -> [Bin.Word8]
+octetsBE :: Word32 -> [Word8]
 octetsBE w =
     [ fromIntegral (w `shiftR` 24)
     , fromIntegral (w `shiftR` 16)
@@ -62,7 +62,7 @@ pbkdf2_iterative_blocks :: (B.ByteString -> B.ByteString -> B.ByteString)
                             -- parallel.
 pbkdf2_iterative_blocks prf password salt iterations = pbkdf2_internal (createBlocks (B.pack []) 1) prf password salt iterations
   where
-    createBlocks :: B.ByteString -> Bin.Word32 -> (B.ByteString -> B.ByteString) -> [B.ByteString]
+    createBlocks :: B.ByteString -> Word32 -> (B.ByteString -> B.ByteString) -> [B.ByteString]
     createBlocks blockSalt i hash = let prev = (hash $ B.concat [blockSalt, salt, B.pack $ octetsBE i])
                                      in prev:(createBlocks (prf prev blockSalt) (i + 1) hash)
 
@@ -90,7 +90,7 @@ pbkdf2_blocks :: (B.ByteString -> B.ByteString -> B.ByteString)
            -- @PRF@. These can be calculated in parallel.
 pbkdf2_blocks prf password salt iterations = pbkdf2_internal (createBlocks True 1) prf password salt iterations
   where
-    createBlocks :: Bool -> Bin.Word32 -> (B.ByteString -> B.ByteString) -> [B.ByteString]
+    createBlocks :: Bool -> Word32 -> (B.ByteString -> B.ByteString) -> [B.ByteString]
     createBlocks False 1 _ = error "Hashing algorithm looped, stopping to maintain security of data" -- Paranoia, but that's useful when doing crypto
     createBlocks _ i hash = (hash $ B.concat [salt, B.pack $ octetsBE i]):(createBlocks False (i + 1) hash)
 

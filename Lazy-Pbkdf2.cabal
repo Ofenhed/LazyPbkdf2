@@ -1,12 +1,12 @@
 Name:           Lazy-Pbkdf2
-Version:        3.1.0
+Version:        3.1.1
 Author:         Marcus Ofenhed <marcus@conditionraise.se>
 Maintainer:     Marcus Ofenhed <marcus@conditionraise.se>
 License:        MIT
 License-File:   LICENSE
 Synopsis:       Lazy PBKDF2 generator.
-Description:    A PBKDF2 generator that generates either a lazy ByteString of
-                PRNG data or a lazy list of strict ByteStrings.
+Description:    A PBKDF2 generator that generates either a lazy ByteString or a
+                list of strict ByteStrings of PRNG.
 Category:       Cryptography
 Build-Type:     Simple
 cabal-version:  >= 1.10

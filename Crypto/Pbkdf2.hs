@@ -45,7 +45,7 @@ pbkdf2_internal createBlocks prf password salt iterations = createBlocks $ first
 -- The added salt for the first iteration will be "", and all following will be
 -- calculated as (PRF output input), where output is the output of the previous
 -- block and input is the added salt for the previous block.  Notice that the
--- output from the previous block is put in the password filed of the PRF.
+-- output from the previous block is put in the password field of the PRF.
 pbkdf2_iterative_blocks :: (B.ByteString -> B.ByteString -> B.ByteString)
                             -- ^ @PRF@, the PRF function to be used for the
                             -- iterative PBKDF2. The first argument is secret, the
